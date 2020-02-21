@@ -1,1 +1,1 @@
-, { } small-title text quadruple row btn-inactive btn-orange btn-green btn-red double <START> header btn-active <END> single
+, { } <START> <END> header body footer button title subtitle text link image double-simple double-double double-quadruple quadruple-simple quadruple-double quadruple-quadruple
