@@ -20,7 +20,7 @@ class Compiler:
         self.closing_tag = self.dsl_mapping["closing-tag"]
         self.content_holder = self.opening_tag + self.closing_tag
 
-        self.root = Node("body", None, self.content_holder)
+        self.root = Node("html", None, self.content_holder)
 
     def get_stylesheet(self, style):
         if style == 'default':
@@ -57,4 +57,4 @@ class Compiler:
         output_html = self.root.render(self.dsl_mapping)
         if output_html is None: return "HTML Parsing Error"
 
-        return output_html
+        return output_html.replace("{}", "")

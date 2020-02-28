@@ -5,6 +5,7 @@ from .SamplerUtils import *
 
 TEXT_PLACE_HOLDER = "[]"
 
+
 class Node:
 
     def __init__(self, key, parent_node, content_holder):
@@ -21,56 +22,44 @@ class Node:
             child.show()
 
     def rendering_function(self, key, value):
-        if key.find("button") != -1:
-            value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_text())
+        if key.find("button") != -1 or key.find("link") != -1:
+            value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_link())
         elif key.find("title") != -1:
-            value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_text(length_text=5, space_number=0))
+            value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_title())
         elif key.find("text") != -1:
-            value = value.replace(TEXT_PLACE_HOLDER,
-                                  SamplerUtils.get_random_text(length_text=56, space_number=7, with_upper_case=False))
+            value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_paragraph())
         return value
 
     def render(self, mapping, rendering_function=None):
-
-        value = self.get_node_value(mapping)
-        if value is None:
-            self = None
-            return None
-
         content = ""
         for child in self.children:
+
+            if type(child) is Node and type(self.parent) == Node:
+                if self.parent.key == "header":
+                    if child.key == "image":
+                        child.key = "logo"
+                    if child.key == "link":
+                        child.key = "header-link"
+                elif self.key == "header":
+                    child.key = "header-"+child.key
+
             placeholder = child.render(mapping, self.rendering_function)
             if placeholder is None:
                 self = None
                 return
             else:
                 content += placeholder
-            value = value.replace(self.get_content_holder(child.key), content)
+
+        value = mapping.get(self.key, None)
+
+        if value is None:
+            self = None
+            return None
 
         if rendering_function is not None:
             value = self.rendering_function(self.key, value)
 
+        if len(self.children) != 0:
+            value = value.replace(self.content_holder, content)
+
         return value
-
-    def get_node_value(self, mapping):
-        value = None
-        if self.parent.key == "header":
-            if self.key == "image":
-                value = mapping.get("logo", None)
-
-            if self.key == "link":
-                value = mapping.get("header-link", None)
-        if value is None:
-            value = mapping.get(self.key, None)
-        return value
-
-    def get_content_holder(self, node):
-
-        specializer = ''
-        if node.key == "header":
-            specializer = 'h'
-        if node.key == "footer":
-            specializer = 'f'
-
-        content_length = len(self.content_holder)
-        return self.content_holder[0:content_length/2] + specializer + self.content_holder[content_length:]

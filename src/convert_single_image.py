@@ -1,8 +1,6 @@
 #!/usr/bin/env python
-import sys
 import os
 from argparse import ArgumentParser
-from os.path import basename
 
 from classes.inference.Sampler import *
 
