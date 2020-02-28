@@ -21,7 +21,7 @@ class Node:
             child.show()
 
     def rendering_function(self, key, value):
-        if key.find("btn") != -1:
+        if key.find("button") != -1:
             value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_text())
         elif key.find("title") != -1:
             value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_text(length_text=5, space_number=0))
@@ -31,6 +31,12 @@ class Node:
         return value
 
     def render(self, mapping, rendering_function=None):
+
+        value = self.get_node_value(mapping)
+        if value is None:
+            self = None
+            return None
+
         content = ""
         for child in self.children:
             placeholder = child.render(mapping, self.rendering_function)
@@ -39,17 +45,32 @@ class Node:
                 return
             else:
                 content += placeholder
-
-        value = mapping.get(self.key, None)
-
-        if value is None:
-            self = None
-            return None
+            value = value.replace(self.get_content_holder(child.key), content)
 
         if rendering_function is not None:
             value = self.rendering_function(self.key, value)
 
-        if len(self.children) != 0:
-            value = value.replace(self.content_holder, content)
-
         return value
+
+    def get_node_value(self, mapping):
+        value = None
+        if self.parent.key == "header":
+            if self.key == "image":
+                value = mapping.get("logo", None)
+
+            if self.key == "link":
+                value = mapping.get("header-link", None)
+        if value is None:
+            value = mapping.get(self.key, None)
+        return value
+
+    def get_content_holder(self, node):
+
+        specializer = ''
+        if node.key == "header":
+            specializer = 'h'
+        if node.key == "footer":
+            specializer = 'f'
+
+        content_length = len(self.content_holder)
+        return self.content_holder[0:content_length/2] + specializer + self.content_holder[content_length:]

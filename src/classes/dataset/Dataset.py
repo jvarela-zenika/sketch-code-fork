@@ -27,6 +27,12 @@ class Dataset:
         sample_ids = self.populate_sample_ids()
         print("Total number of samples: ", len(sample_ids))
 
+        if len(sample_ids) > 2000:
+            np.random.shuffle(sample_ids)
+            sample_ids = sample_ids[0:2000]
+
+        print("Sample limitation reached, pick 2000 random sample for this training")
+
         train_set_ids, val_set_ids, shuffled_sampled_ids = self.get_all_id_sets(validation_split, sample_ids)
         training_path, validation_path = self.split_samples(train_set_ids, val_set_ids)
 

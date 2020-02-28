@@ -3,15 +3,18 @@ from __future__ import absolute_import
 from keras.models import Model, Sequential, model_from_json
 from keras.callbacks import ModelCheckpoint, CSVLogger, Callback
 from keras.layers.core import Dense, Dropout, Flatten
-from keras.layers import Embedding, GRU, TimeDistributed, RepeatVector, LSTM, concatenate , Input, Reshape, Dense
+from keras.layers import Embedding, GRU, TimeDistributed, RepeatVector, LSTM, concatenate, Input, Reshape, Dense
 from keras.layers.convolutional import Conv2D
 from keras.optimizers import RMSprop
+from keras.callbacks import tensorboard_v1
+import datetime
 
 from .ModelUtils import *
 from classes.dataset.Dataset import *
 
 MAX_LENGTH = 48
-MAX_SEQ    = 150
+MAX_SEQ = 150
+
 
 class SketchCodeModel():
 
@@ -55,12 +58,12 @@ class SketchCodeModel():
         # Image encoder
         image_model = Sequential()
         image_model.add(Conv2D(16, (3, 3), padding='valid', activation='relu', input_shape=(256, 256, 3,)))
-        image_model.add(Conv2D(16, (3,3), activation='relu', padding='same', strides=2))
-        image_model.add(Conv2D(32, (3,3), activation='relu', padding='same'))
-        image_model.add(Conv2D(32, (3,3), activation='relu', padding='same', strides=2))
-        image_model.add(Conv2D(64, (3,3), activation='relu', padding='same'))
-        image_model.add(Conv2D(64, (3,3), activation='relu', padding='same', strides=2))
-        image_model.add(Conv2D(128, (3,3), activation='relu', padding='same'))
+        image_model.add(Conv2D(16, (3, 3), activation='relu', padding='same', strides=2))
+        image_model.add(Conv2D(32, (3, 3), activation='relu', padding='same'))
+        image_model.add(Conv2D(32, (3, 3), activation='relu', padding='same', strides=2))
+        image_model.add(Conv2D(64, (3, 3), activation='relu', padding='same'))
+        image_model.add(Conv2D(64, (3, 3), activation='relu', padding='same', strides=2))
+        image_model.add(Conv2D(128, (3, 3), activation='relu', padding='same'))
         image_model.add(Flatten())
         image_model.add(Dense(1024, activation='relu'))
         image_model.add(Dropout(0.3))
@@ -98,24 +101,23 @@ class SketchCodeModel():
 
         # Begin training
         print("\n### Starting model training ###\n")
-        self.model.fit_generator(generator=training_generator, validation_data=validation_generator, epochs=epochs, shuffle=False, validation_steps=val_steps_per_epoch, steps_per_epoch=train_steps_per_epoch, callbacks=callbacks_list, verbose=1)
+        self.model.fit_generator(generator=training_generator, validation_data=validation_generator, epochs=epochs,
+                                 shuffle=False, validation_steps=val_steps_per_epoch,
+                                 steps_per_epoch=train_steps_per_epoch, callbacks=callbacks_list, verbose=1)
         print("\n### Finished model training ###\n")
         self.save_model()
 
     def construct_callbacks(self, validation_path):
-        checkpoint_filepath="{}/".format(self.model_output_path) + "weights-epoch-{epoch:04d}--val_loss-{val_loss:.4f}--loss-{loss:.4f}.h5"
+        checkpoint_filepath = "{}/".format(
+            self.model_output_path) + "weights-epoch-{epoch:04d}--val_loss-{val_loss:.4f}--loss-{loss:.4f}.h5"
         csv_logger = CSVLogger("{}/training_val_losses.csv".format(self.model_output_path))
         checkpoint = ModelCheckpoint(checkpoint_filepath,
-                                    verbose=0,
-                                    save_weights_only=True,
-                                    save_best_only=True,
-                                    mode= 'min',
-                                    period=2)
-        callbacks_list = [checkpoint, csv_logger]
+                                     verbose=0,
+                                     save_weights_only=True,
+                                     save_best_only=False,
+                                     mode='min',
+                                     period=2)
+        log_dir = "logs/fit/" + datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+        tensorboard_callback = tensorboard_v1.TensorBoard(log_dir=log_dir, histogram_freq=0, write_graph=True)
+        callbacks_list = [checkpoint, csv_logger, tensorboard_callback]
         return callbacks_list
-
-
-
-
-
-
