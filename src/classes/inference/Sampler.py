@@ -1,20 +1,18 @@
 from __future__ import absolute_import
 
 import sys
-import os
-import shutil
-import json
-import numpy as np
 
+import numpy as np
 from keras.models import model_from_json
 from keras.preprocessing.sequence import pad_sequences
 
-from classes.dataset.Dataset import *
-from classes.dataset.ImagePreprocessor import *
-from .Evaluator import *
 from .Compiler import *
+from .Evaluator import *
+from ..dataset.Dataset import Dataset
+from ..dataset.ImagePreprocessor import ImagePreprocessor
 
 MAX_LENGTH = 48
+
 
 class Sampler:
 
@@ -31,7 +29,8 @@ class Sampler:
             if filename.find('.png') != -1:
                 png_path = "{}/{}".format(pngs_path, filename)
                 try:
-                    self.convert_single_image(output_folder, png_path, print_generated_output=0, get_sentence_bleu=0, original_gui_filepath=png_path, style=style)
+                    self.convert_single_image(output_folder, png_path, print_generated_output=0, get_sentence_bleu=0,
+                                              original_gui_filepath=png_path, style=style)
                     generated_count += 1
                 except:
                     print("Error with GUI / HTML generation:", sys.exc_info()[0])
@@ -42,7 +41,8 @@ class Sampler:
         if (get_corpus_bleu == 1) and (original_guis_filepath is not None):
             print("BLEU score: {}".format(Evaluator.get_corpus_bleu(original_guis_filepath, output_folder)))
 
-    def convert_single_image(self, output_folder, png_path, print_generated_output, get_sentence_bleu, original_gui_filepath, style):
+    def convert_single_image(self, output_folder, png_path, print_generated_output, get_sentence_bleu,
+                             original_gui_filepath, style):
 
         # Retrieve sample ID
         png_filename = os.path.basename(png_path)
@@ -52,15 +52,16 @@ class Sampler:
 
         # Generate GUI
         print("Generating code for sample ID {}".format(sample_id))
-        generated_gui, gui_output_filepath= self.generate_gui(png_path, print_generated_output=print_generated_output, output_folder=output_folder, sample_id=sample_id)
+        generated_gui, gui_output_filepath = self.generate_gui(png_path, print_generated_output=print_generated_output,
+                                                               output_folder=output_folder, sample_id=sample_id)
 
         # Generate HTML
-        generated_html = self.generate_html(generated_gui, sample_id, print_generated_output=print_generated_output, output_folder=output_folder, style=style)
+        self.generate_html(generated_gui, sample_id, print_generated_output=print_generated_output,
+                           output_folder=output_folder, style=style)
 
         # Get BLEU
         if get_sentence_bleu == 1 and (original_gui_filepath is not None):
             print("BLEU score: {}".format(Evaluator.get_sentence_bleu(original_gui_filepath, gui_output_filepath)))
-
 
     ##########################################
     ####### PRIVATE METHODS ##################
@@ -129,9 +130,3 @@ class Sampler:
         with open(gui_output_filepath, 'w') as out_f:
             out_f.write(' '.join(gui_array))
         return gui_output_filepath
-
-
-
-
-
-
