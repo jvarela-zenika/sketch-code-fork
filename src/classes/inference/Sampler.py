@@ -108,9 +108,9 @@ class Sampler:
         compiler = Compiler(style)
         compiled_website = compiler.compile(gui_array)
 
-        if print_generated_output is 1:
-            print("\nCompiled HTML:")
-            print(compiled_website)
+        # if print_generated_output is 1:
+        #     print("\nCompiled HTML:")
+        #     print(compiled_website)
 
         if compiled_website != 'HTML Parsing Error':
             output_filepath = "{}/{}.html".format(output_folder, sample_id)

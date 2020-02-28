@@ -5,6 +5,7 @@ from .SamplerUtils import *
 
 TEXT_PLACE_HOLDER = "[]"
 
+
 class Node:
 
     def __init__(self, key, parent_node, content_holder):
@@ -21,18 +22,27 @@ class Node:
             child.show()
 
     def rendering_function(self, key, value):
-        if key.find("btn") != -1:
-            value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_text())
+        if key.find("button") != -1 or key.find("link") != -1:
+            value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_link())
         elif key.find("title") != -1:
-            value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_text(length_text=5, space_number=0))
+            value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_title())
         elif key.find("text") != -1:
-            value = value.replace(TEXT_PLACE_HOLDER,
-                                  SamplerUtils.get_random_text(length_text=56, space_number=7, with_upper_case=False))
+            value = value.replace(TEXT_PLACE_HOLDER, SamplerUtils.get_random_paragraph())
         return value
 
     def render(self, mapping, rendering_function=None):
         content = ""
         for child in self.children:
+
+            if type(child) is Node and type(self.parent) == Node:
+                if self.parent.key == "header":
+                    if child.key == "image":
+                        child.key = "logo"
+                    if child.key == "link":
+                        child.key = "header-link"
+                elif self.key == "header":
+                    child.key = "header-"+child.key
+
             placeholder = child.render(mapping, self.rendering_function)
             if placeholder is None:
                 self = None

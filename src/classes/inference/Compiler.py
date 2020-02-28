@@ -7,9 +7,7 @@ import json
 from .Node import *
 
 BASE_DIR_NAME = os.path.dirname(__file__)
-DEFAULT_DSL_MAPPING_FILEPATH = "{}/styles/default-dsl-mapping.json".format(BASE_DIR_NAME)
-FACEBOOK_DSL_MAPPING_FILEPATH = "{}/styles/facebook_dsl_mapping.json".format(BASE_DIR_NAME)
-AIRBNB_DSL_MAPPING_FILEPATH = "{}/styles/airbnb_dsl_mapping.json".format(BASE_DIR_NAME)
+EVOLI_CSS = "{}/styles/evoli-css.json".format(BASE_DIR_NAME)
 
 
 class Compiler:
@@ -22,15 +20,11 @@ class Compiler:
         self.closing_tag = self.dsl_mapping["closing-tag"]
         self.content_holder = self.opening_tag + self.closing_tag
 
-        self.root = Node("body", None, self.content_holder)
+        self.root = Node("html", None, self.content_holder)
 
     def get_stylesheet(self, style):
         if style == 'default':
-            return DEFAULT_DSL_MAPPING_FILEPATH
-        elif style == 'facebook':
-            return FACEBOOK_DSL_MAPPING_FILEPATH
-        elif style == 'airbnb':
-            return AIRBNB_DSL_MAPPING_FILEPATH
+            return EVOLI_CSS
 
     def compile(self, generated_gui):
         dsl_file = generated_gui
@@ -38,8 +32,10 @@ class Compiler:
         #Parse fix
         dsl_file = dsl_file[1:-1]
         dsl_file = ' '.join(dsl_file)
+        dsl_file = dsl_file.replace('{ { }', '{')
         dsl_file = dsl_file.replace('{', '{8').replace('}', '8}8')
         dsl_file = dsl_file.replace(' ', '')
+        print(dsl_file)
         dsl_file = dsl_file.split('8')
         dsl_file = list(filter(None, dsl_file))
 
@@ -63,4 +59,4 @@ class Compiler:
         output_html = self.root.render(self.dsl_mapping)
         if output_html is None: return "HTML Parsing Error"
 
-        return output_html
+        return output_html.replace("{}", "")
