@@ -1,0 +1,1 @@
+<START> header { { link , link } { } { link } { image } } body { { subtitle , subtitle } quadruple-simple { image } quadruple-double { link , link , text } quadruple-simple { link , link } } footer { } <END>

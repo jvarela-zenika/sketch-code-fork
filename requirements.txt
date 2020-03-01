@@ -1,3 +1,7 @@
+pycryptodome==3.4.3
+requests_toolbelt
+firebase
+flask
 Keras
 tensorflow==1.15.0
 tensorflow-gpu
