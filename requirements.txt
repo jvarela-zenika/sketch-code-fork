@@ -5,6 +5,7 @@ gcloud
 sseclient
 firebase
 flask
+flask_cors
 Keras
 tensorflow==1.15.0
 tensorflow-gpu

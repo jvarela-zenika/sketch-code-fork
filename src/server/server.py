@@ -1,3 +1,4 @@
+from flask_cors import cross_origin
 from firebase import Firebase
 
 config = {
@@ -21,7 +22,8 @@ app = Flask(__name__, template_folder="")
 sampler = None
 
 
-@app.route('/api/predict')
+@app.route('/api/predict', methods=['GET'])
+@cross_origin()
 def home():
     global sampler
     storage = firebase.storage()
@@ -34,6 +36,7 @@ def home():
     sampler.convert_single_image("./", png_path="./mockup.png", print_generated_output=False,
                                  get_sentence_bleu=False, original_gui_filepath=None,
                                  style="default")
+
     return render_template("./mockup.html")
 
 
