@@ -1,5 +1,3 @@
-import io
-
 from firebase import Firebase
 
 config = {
@@ -20,17 +18,24 @@ from flask import render_template, Flask
 from src.classes.inference.Sampler import Sampler
 
 app = Flask(__name__, template_folder="")
+sampler = None
+
 
 @app.route('/api/predict')
 def home():
+    global sampler
     storage = firebase.storage()
     storage.child("mockup.png").download("mockup.png")
-    sampler = Sampler(model_json_path="../../bin/model_json.json",
-                      model_weights_path="../../bin/weights.h5")
+    sampler = Sampler(
+        model_json_path="../../bin/model_json.json",
+        model_weights_path="../../bin/weights.h5"
+    ) if sampler is None else sampler
+
     sampler.convert_single_image("./", png_path="./mockup.png", print_generated_output=False,
                                  get_sentence_bleu=False, original_gui_filepath=None,
                                  style="default")
     return render_template("./mockup.html")
+
 
 # If we're running in stand alone mode, run the application
 if __name__ == '__main__':

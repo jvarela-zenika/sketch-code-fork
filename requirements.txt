@@ -1,5 +1,8 @@
 pycryptodome==3.4.3
 requests_toolbelt
+python_jwt
+gcloud
+sseclient
 firebase
 flask
 Keras
